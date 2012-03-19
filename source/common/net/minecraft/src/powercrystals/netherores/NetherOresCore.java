@@ -13,6 +13,8 @@ import net.minecraft.src.forge.Configuration;
 import net.minecraft.src.forge.IOreHandler;
 import net.minecraft.src.forge.MinecraftForge;
 import net.minecraft.src.forge.Property;
+import net.minecraft.src.ic2.api.Ic2Recipes;
+import net.minecraft.src.ic2.api.Items;
 
 public class NetherOresCore
 {
@@ -28,7 +30,7 @@ public class NetherOresCore
 	public static boolean foundTin;
 	public static boolean foundCopper;
 	
-	public static String version = "1.1.0R1.1.2";
+	public static String version = "1.2.3R1.2.0";
 	
 	public static void init(String configPath, boolean onServer)
 	{
@@ -36,7 +38,7 @@ public class NetherOresCore
 		
 		blockNetherOres = new BlockNetherOres(Integer.parseInt(netherOreBlockId.value), 0);
 		
-		ModLoader.RegisterBlock(blockNetherOres, ItemNetherOre.class);
+		ModLoader.registerBlock(blockNetherOres, ItemNetherOre.class);
 		
 		MinecraftForge.registerOreHandler(new NetherOresCore().new OreHandler());
 		
@@ -55,7 +57,24 @@ public class NetherOresCore
 		MinecraftForge.registerOre("oreNetherRedstone", new ItemStack(blockNetherOres, 1, 5));
 		MinecraftForge.registerOre("oreNetherCopper", new ItemStack(blockNetherOres, 1, 6));
 		MinecraftForge.registerOre("oreNetherTin", new ItemStack(blockNetherOres, 1, 7));
-			
+		
+		try
+		{
+			if (Class.forName("ic2.api.Items") != null)
+			{
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 0), new ItemStack(Item.coal, 2));
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 1), new ItemStack(Item.diamond, 2));
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 2), new ItemStack(Items.getItem("goldDust").itemID, 4, 0));
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 3), new ItemStack(Items.getItem("ironDust").itemID, 4, 0));
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 4), new ItemStack(Item.dyePowder, 8, 4));
+				Ic2Recipes.addMaceratorRecipe(new ItemStack(blockNetherOres.blockID, 1, 5), new ItemStack(Item.redstone, 6));
+			}
+		}
+		catch (ClassNotFoundException e)
+		{
+			System.out.println("NetherOres did not find IC2 API, did not integrate Macerator Recipes");
+		}
+		
 		if(Boolean.parseBoolean(enableStandardFurnaceRecipes.value) == true)
 		{
 			FurnaceRecipes.smelting().addSmelting(blockNetherOres.blockID, 0, new ItemStack(Item.coal));

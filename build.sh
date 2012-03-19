@@ -14,7 +14,7 @@ CLEANSRC=$MCP/src-dev
 
 SPRITEFOLDER=NetherOresSprites
 MODNAME=NetherOres
-MODVERSION=1.1.2
+MODVERSION=1.2.0
 ZIPPATH=`which zip`
 
 SRCBASE=$PROJBASE/source

@@ -5,10 +5,12 @@ import java.util.Random;
 
 import net.minecraft.src.AxisAlignedBB;
 import net.minecraft.src.Block;
+import net.minecraft.src.DamageSource;
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityPigZombie;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.World;
+import net.minecraft.src.mod_NetherOres;
 import net.minecraft.src.forge.ITextureProvider;
 
 public class BlockNetherOres extends Block implements ITextureProvider
@@ -33,25 +35,28 @@ public class BlockNetherOres extends Block implements ITextureProvider
 	@Override
 	protected int damageDropped(int i)
 	{
+    	if((i & 0x08) != 0)
+    	{
+    		i = i & ~0x08;
+    	}
+		
 		return i;
 	}
 	
 	@Override
 	public int quantityDropped(Random random)
-//	public int quantityDropped(int i, Random random)
 	{
-		/*
-		if((i & 0x08) > 1)
-		{
-			return 0;
-		}
-		*/
 		return 1;
 	}
 	
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int i, int j, int k, int l)
 	{
+    	if((l & 0x08) != 0)
+    	{
+    		l = l & ~0x08;
+    	}
+		
 		super.harvestBlock(world, entityplayer, i, j, k, l);
 		angerPigmen(entityplayer, world, i, j, k);
 	}
@@ -69,8 +74,8 @@ public class BlockNetherOres extends Block implements ITextureProvider
 			{
 				world.setBlockMetadataWithNotify(tx, ty, tz, world.getBlockMetadata(tx, ty, tz) | 0x08);
 		        world.scheduleBlockUpdate(tx, ty, tz, this.blockID, 75);
-		        world.playSoundEffect(tx + 0.5, ty + 0.5, tz + 0.5, "random.fuse", 1.0F, 1.0F);
-				return;
+		        mod_NetherOres.causeFuseSoundAt(world, i, j, k);
+				break;
 			}
 		}
 	}
@@ -143,7 +148,7 @@ public class BlockNetherOres extends Block implements ITextureProvider
 	        if(entity1 instanceof EntityPigZombie)
 	        {
 	            EntityPigZombie entitypigzombie = (EntityPigZombie)entity1;
-	            entitypigzombie.becomeAngryAt(player);
+	            entitypigzombie.attackEntityFrom(DamageSource.causePlayerDamage(player), 0);
 	        }
 	    }
 	}

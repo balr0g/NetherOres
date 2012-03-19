@@ -20,6 +20,7 @@ public class WorldGenNetherOres extends WorldGenerator
         numberOfBlocks = numBlocks;
     }
 
+    @Override
     public boolean generate(World world, Random random, int i, int j, int k)
     {
         float f = random.nextFloat() * 3.141593F;
