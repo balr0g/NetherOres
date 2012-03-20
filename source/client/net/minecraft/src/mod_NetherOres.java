@@ -1,12 +1,20 @@
 package net.minecraft.src;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.src.forge.IConnectionHandler;
+import net.minecraft.src.forge.IPacketHandler;
 import net.minecraft.src.forge.MinecraftForgeClient;
+import net.minecraft.src.forge.MessageManager;
+import net.minecraft.src.forge.NetworkMod;
 import net.minecraft.src.powercrystals.netherores.NetherOresCore;
 
-public class mod_NetherOres extends BaseModMp
+public class mod_NetherOres extends NetworkMod implements IConnectionHandler, IPacketHandler
 {
 	@Override
 	public void load()
@@ -41,17 +49,62 @@ public class mod_NetherOres extends BaseModMp
 		return NetherOresCore.version;
 	}
 	
+	@Override
+	public String getPriorities()
+	{
+		return NetherOresCore.priorities;
+	}
+	
 	public static void causeFuseSoundAt(World world, int x, int y, int z)
 	{
 		world.playSoundEffect(x + 0.5, y + 0.5, z + 0.5, "random.fuse", 1.0F, 1.0F);
 	}
 	
 	@Override
-	public void handlePacket(Packet230ModLoader packet)
+	public void onPacketData(NetworkManager network, String channel, byte[] data)
 	{
-		if (packet.packetType == 1)
-		{
-			causeFuseSoundAt(ModLoader.getMinecraftInstance().theWorld, packet.dataInt[0], packet.dataInt[1], packet.dataInt[2]);
+		int coords[] = new int[3];
+		if(!channel.equals("mod_NetherOres"))
+			return;
+		try {
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+			ObjectInput input = new ObjectInputStream(inputStream);
+			for(int i = 0; i < 3; i++) {
+				coords[i] = input.readInt();
+			}
+			input.close();
+			inputStream.close();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
+		causeFuseSoundAt(ModLoader.getMinecraftInstance().theWorld, coords[0], coords[1], coords[2]);
+	}
+	
+	@Override
+	public void OnLogin(NetworkManager network, Packet1Login login)
+	{
+		MessageManager.getInstance().registerChannel(network, this, "mod_NetherOres");
+	}
+	
+	@Override
+	public void OnDisconnect(NetworkManager network, String message, Object[] args)
+	{
+	}
+	
+	@Override
+	public void OnConnect(NetworkManager network)
+	{
+	}
+	
+	@Override
+	public boolean clientSideRequired()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean serverSideRequired()
+	{
+		return false;
 	}
 }
